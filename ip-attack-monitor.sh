@@ -12,3 +12,6 @@ then
   echo "Cannot open log file: ${LOG_FILE}" >&2
   exit 1
 fi
+
+# Display the CSV header.
+echo 'Count,IP,Location'
