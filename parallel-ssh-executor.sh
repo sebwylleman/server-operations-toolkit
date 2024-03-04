@@ -67,3 +67,11 @@ do
   fi
 
   SSH_COMMAND="ssh ${SSH_OPTIONS} ${SERVER} ${SUDO} ${COMMAND}"
+
+  # If it's a dry run, don't execute anything, just echo it.
+  if [[ "${DRY_RUN}" = 'true' ]]
+  then
+    echo "DRY RUN: ${SSH_COMMAND}"
+  else
+    ${SSH_COMMAND}
+    SSH_EXIT_STATUS="${?}"
