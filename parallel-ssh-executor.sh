@@ -75,3 +75,14 @@ do
   else
     ${SSH_COMMAND}
     SSH_EXIT_STATUS="${?}"
+
+# Capture any non-zero exit status from the SSH_COMMAND and report to the user.
+    if [[ "${SSH_EXIT_STATUS}" -ne 0 ]]
+    then
+      EXIT_STATUS=${SSH_EXIT_STATUS}
+      echo "Execution on ${SERVER} failed." >&2
+    fi
+  fi
+done
+
+exit ${EXIT_STATUS}
