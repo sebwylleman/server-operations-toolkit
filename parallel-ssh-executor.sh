@@ -54,3 +54,16 @@ then
   echo "Cannot open server list file ${SERVER_LIST}." >&2
   exit 1
 fi
+
+# Expect the best, prepare for the worst.
+EXIT_STATUS='0'
+
+# Loop through the SERVER_LIST
+for SERVER in $(cat ${SERVER_LIST})
+do
+  if [[ "${VERBOSE}" = 'true' ]]
+  then
+    echo "${SERVER}"
+  fi
+
+  SSH_COMMAND="ssh ${SSH_OPTIONS} ${SERVER} ${SUDO} ${COMMAND}"
