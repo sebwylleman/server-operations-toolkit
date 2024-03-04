@@ -22,3 +22,14 @@ then
   echo 'Do not execute this script as root. Use the -s option instead.' >&2
   usage
 fi
+# Parse the options.
+while getopts f:nsv OPTION
+do
+  case ${OPTION} in
+    f) SERVER_LIST="${OPTARG}" ;;
+    n) DRY_RUN='true' ;;
+    s) SUDO='sudo' ;;
+    v) VERBOSE='true' ;;
+    ?) usage ;;
+  esac
+done
