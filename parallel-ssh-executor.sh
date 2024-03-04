@@ -44,3 +44,13 @@ if [[ "${#}" -lt 1 ]]
 then
   usage
 fi
+
+# Anything that remains on the command line is to be treated as a single command.
+COMMAND="${@}"
+
+# Make sure the SERVER_LIST file exists.
+if [[ ! -e "${SERVER_LIST}" ]]
+then
+  echo "Cannot open server list file ${SERVER_LIST}." >&2
+  exit 1
+fi
