@@ -1,28 +1,30 @@
-#/bin/bash
+#!/bin/bash
 
-# Run with sudo or root
+# This script requires root privileges to run geoiplookup for location data. Run with sudo or root.
 
-# This script analyses a log file containing failed login attempts and generates a report summarising potentially suspicious activity.
-# If there are any IPs with over max login limit failures, display the count, IP, and location.
+# Analyzes a log file containing failed login attempts and generates a report.
+# The report summarizes potentially suspicious activity by identifying IPs with an unusually high number of failures exceeding a predefined limit.
 
-MAX_LOGIN_ATTEMPTS='10'
-LOG_FILE="${1}"
+MAX_LOGIN_ATTEMPTS=10  # Set the maximum allowed failed login attempts
 
-# Check if a log file was supplied as an argument.
-[[ -z "${LOG_FILE}" ]]
-then
-    echo "Error: Please provide a log file path as an argument." >&2
-    exit 1
+# Script expects a log file path as the first argument
+LOG_FILE="$1"
+
+# Check if a log file argument was provided
+if [[ -z "$LOG_FILE" ]]; then
+  echo "Error: Please provide a log file path as the first argument." >&2
+  exit 1
 fi
 
-# Loop through the list of failed attempts and corresponding IP addresses.
-grep Failed ${LOG_FILE} | awk '{print $(NF - 3)}' | sort | uniq -c | sort -nr |  while read COUNT IP
-do
-  # If the number of failed attempts is greater than the limit, display count, IP, and location.
-  if [[ "${COUNT}" -gt "${MAX_LOGIN_ATTEMPTS}" ]]
-  then
-    LOCATION=$(geoiplookup ${IP} | awk -F ', ' '{print $2}')
-    echo "${COUNT},${IP},${LOCATION}"
+# Process the log file
+grep 'Failed' "$LOG_FILE" | awk '{print $NF-3}' | sort | uniq -c | sort -nr | while read -r COUNT IP; do
+  # Check if login attempts exceed the limit
+  if [[ "$COUNT" -gt "$MAX_LOGIN_ATTEMPTS" ]]; then
+    # Use geoiplookup to find the IP's location (requires geoiplookup tool)
+    LOCATION=$(geoiplookup "$IP" | awk -F ', ' '{print $2}')
+    # Report: Count, IP address, and location
+    echo "$COUNT,$IP,$LOCATION"
   fi
 done
+
 exit 0
