@@ -1,11 +1,15 @@
 #!/bin/bash
 
-# A list of servers, one per line.
-SERVER_FILE='/vagrant/servers'  # Changed from SERVER_LIST for clarity
+# This script executes a single command on a list of servers. 
+# It provides options for specifying a server list file, dry run mode, using sudo, and verbosity.
 
-# Options for the ssh command.
-SSH_FLAGS='-o ConnectTimeout=2'  # Changed from SSH_OPTIONS for consistency with flags
+# Server list file location (default: /vagrant/servers)
+SERVER_FILE='/vagrant/servers'
 
+# Options for the ssh command (e.g., connection timeout)
+SSH_FLAGS='-o ConnectTimeout=2'
+
+# Function to display usage information and exit
 usage() {
   # Display the usage and exit.
   echo "Usage: ${0} [-nsv] [-f FILE] COMMAND" >&2
@@ -18,17 +22,15 @@ usage() {
 }
 
 # Make sure the script is not being executed with superuser privileges.
-if [[ "${UID}" -eq 0 ]]
-then
+if [[ "${UID}" -eq 0 ]]; then
   echo 'Do not execute this script as root. Use the -s option instead.' >&2
   usage
 fi
 
 # Parse the options.
-while getopts f:nsv OPTION
-do
+while getopts f:nsv OPTION; do
   case ${OPTION} in
-    f) SERVER_LIST="${OPTARG}" ;;
+    f) SERVER_FILE="${OPTARG}" ;;
     n) DRY_RUN='true' ;;
     s) SUDO='sudo' ;;
     v) VERBOSE='true' ;;
@@ -40,18 +42,16 @@ done
 shift "$(( OPTIND - 1 ))"
 
 # If the user doesn't supply at least one argument, give them help.
-if [[ "${#}" -lt 1 ]]
-then
+if [[ "${#}" -lt 1 ]]; then
   usage
 fi
 
 # Anything that remains on the command line is to be treated as a single command.
 COMMAND="${@}"
 
-# Make sure the SERVER_LIST file exists.
-if [[ ! -e "${SERVER_LIST}" ]]
-then
-  echo "Cannot open server list file ${SERVER_LIST}." >&2
+# Make sure the SERVER_FILE file exists.
+if [[ ! -e "${SERVER_FILE}" ]]; then
+  echo "Cannot open server list file ${SERVER_FILE}." >&2
   exit 1
 fi
 
@@ -59,26 +59,22 @@ fi
 EXIT_STATUS='0'
 
 # Loop through the SERVER_LIST
-for SERVER in $(cat ${SERVER_LIST})
-do
-  if [[ "${VERBOSE}" = 'true' ]]
-  then
+for SERVER in $(cat ${SERVER_FILE}); do
+  if [[ "${VERBOSE}" = 'true' ]]; then
     echo "${SERVER}"
   fi
 
-  SSH_COMMAND="ssh ${SSH_OPTIONS} ${SERVER} ${SUDO} ${COMMAND}"
+  SSH_COMMAND="ssh ${SSH_FLAGS} ${SERVER} ${SUDO} ${COMMAND}"
 
   # If it's a dry run, don't execute anything, just echo it.
-  if [[ "${DRY_RUN}" = 'true' ]]
-  then
+  if [[ "${DRY_RUN}" = 'true' ]]; then
     echo "DRY RUN: ${SSH_COMMAND}"
   else
     ${SSH_COMMAND}
     SSH_EXIT_STATUS="${?}"
 
-# Capture any non-zero exit status from the SSH_COMMAND and report to the user.
-    if [[ "${SSH_EXIT_STATUS}" -ne 0 ]]
-    then
+    # Capture any non-zero exit status from the SSH_COMMAND and report to the user.
+    if [[ "${SSH_EXIT_STATUS}" -ne 0 ]]; then
       EXIT_STATUS=${SSH_EXIT_STATUS}
       echo "Execution on ${SERVER} failed." >&2
     fi
