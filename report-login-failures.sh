@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script requires root privileges to run geoiplookup for location data. Run with sudo or root.
+# This script requires root privileges to run geoiplookup for location data. Run with sudo privileges.
 
 # Analyzes a log file containing failed login attempts and generates a report.
 # The report summarizes potentially suspicious activity by identifying IPs with an unusually high number of failures exceeding a predefined limit.
