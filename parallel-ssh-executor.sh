@@ -30,6 +30,7 @@ fi
 # Parse the options.
 while getopts f:nsv OPTION; do
   case ${OPTION} in
+  # '$OPTARG' is a predefined variable used by 'getopts'  to store the value of the current option being processed.
     f) SERVER_FILE="${OPTARG}" ;;
     n) DRY_RUN='true' ;;
     s) SUDO='sudo' ;;
